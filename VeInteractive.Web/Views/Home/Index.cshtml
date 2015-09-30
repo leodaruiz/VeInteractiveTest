@@ -1,0 +1,141 @@
+﻿<style>
+    .token {
+        background: #797979;
+        height: 25px;
+        text-align: center;
+        vertical-align: middle;
+        color: white;
+        padding-top: 5px;
+    }
+
+    .valid {
+        background: #5FA9BF;
+        height: 30px;
+        text-align: center;
+        vertical-align: middle;
+        color: #E0E0E0;
+        padding-top: 10px;
+    }
+
+    .invalid {
+        background: #E66868;
+        height: 30px;
+        text-align: center;
+        vertical-align: middle;
+        color: white;
+        padding-top: 10px;
+    }
+</style>
+<div id="body">
+    <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+                <h2>Leonardo Daruiz Correa</h2>
+            </hgroup>
+            <div style="width: 50%; float:left; text-align:center">
+                <p>
+                    Use the left side to create a token.
+                </p>
+            </div>
+            <div style="width: 50%; float:right; text-align:center">
+                <p>
+                    Use the right side to validate a token.
+                </p>
+            </div>
+            <br />
+            <br />
+        </div>
+    </section>
+    <section class="content-wrapper main-content clear-fix">
+        <div style="width: 50%; float:left; text-align:center">
+            <h3>Create Password</h3>
+            <ol class="round">
+                <li>
+                    User ID:
+                    <input type="text" id="txtUserId" />
+                </li>
+                <li>
+                    <input type="button" id="btnCreatePassword" value="Create Password" />
+                </li>
+                <li>
+                    <div id="generatedPassword"></div>
+                </li>
+                <li>
+                    <div id="generatedExpiration"></div>
+                </li>
+            </ol>
+        </div>
+        <div style="width: 50%; float:right; text-align:center">
+            <h3>Validate Password</h3>
+            <ol class="round">
+                <li>
+                    User ID: <input type="text" id="txtUser_UserId" />
+                </li>
+                <li>
+                    Password:
+                    <input type="text" id="txtUser_Password" />
+                </li>
+                <li>
+                    <input type="button" id="btnValidatePassword" value="Validate Password" />
+                </li>
+                <li>
+                    <div id="validationResult"></div>
+                </li>
+            </ol>
+        </div>
+    </section>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#btnCreatePassword").click(function () {
+                GeneratePassword();
+            });
+            $("#btnValidatePassword").click(function () {
+                ValidatePassword();
+            });
+        });
+
+        function GeneratePassword() {
+            var UserId = $("#txtUserId").val();
+            if (UserId == "") {
+                alert("Please enter the UserId");
+                return;
+            }
+            var user = { '': UserId };
+            $.ajax({
+                type: "POST",
+                url: "/api/CreatePassword",
+                data: user,
+                //datatype: "html",
+                success: function (data) {
+                    $('#generatedPassword').html(data);
+                    $('#generatedPassword').addClass("token");
+                }
+            });
+        }
+
+        function ValidatePassword() {
+            var UserId = $("#txtUser_UserId").val();
+            var Password = $("#txtUser_Password").val();
+            var user = { UserID: UserId, Password: Password };
+            $.ajax({
+                type: "POST",
+                url: "/api/ValidatePassword",
+                data: user,
+                //datatype: "html",
+                success: function (data) {
+                    if (data) {
+                        $('#validationResult').html("Password OK !");
+                        $('#validationResult').removeClass("invalid");
+                        $('#validationResult').addClass("valid");
+                    } else {
+                        $('#validationResult').html("Invalid Password");
+                        $('#validationResult').removeClass("valid");
+                        $('#validationResult').addClass("invalid");
+                    }
+                }
+            });
+        }
+    </script>
+}
